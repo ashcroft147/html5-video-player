@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import VideoPlayer from './VideoPlayer';
-import Control from './Controls';
 import { VIDEO_JS_OPTIONS } from './Options';
 
-class Player extends Component {
+class VideoContainer extends Component {
     render() {
         return (
             <div className="player-container">
@@ -13,4 +12,4 @@ class Player extends Component {
     }
 }
 
-export default Player
+export default VideoContainer

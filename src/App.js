@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import './App.css';
-import VideoPlayer from './components/VideoPlayer';
+import VideoContainer from './components/VideoContainer';
 
 class App extends Component {
   render() {
     return (
       <div className="App">
-	  	  <VideoPlayer/>
+	  	  <VideoContainer/>
       </div>
     );
   }
