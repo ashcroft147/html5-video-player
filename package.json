@@ -5,7 +5,8 @@
   "private": true,
   "dependencies": {
     "react": "^15.5.4",
-    "react-dom": "^15.5.4"
+    "react-dom": "^15.5.4",
+    "video.js": "^6.1.0"
   },
   "devDependencies": {
     "autoprefixer": "7.1.0",
