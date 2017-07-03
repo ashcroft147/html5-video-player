@@ -4,6 +4,7 @@
   "authors": "ashcroft147@gmail.com",
   "private": true,
   "dependencies": {
+    "highcharts": "^4.2.1",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
     "video.js": "^6.1.0"

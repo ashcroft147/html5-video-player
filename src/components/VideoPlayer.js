@@ -21,11 +21,11 @@ export default class VideoPlayer extends Component {
 
     // destroy player on unmount
     componentWillUnmount() {
-            if (this.player) {
-
+        if (this.player) {
             this.player.dispose();
         }
-    }   
+    }
+
     // 1st src: https://www.w3schools.com/html/mov_bbb.mp4
     // 2nd src: https://www.paypalobjects.com/webstatic/mktg/videos/PayPal_AustinSMB_baseline.mp4
     render() {
