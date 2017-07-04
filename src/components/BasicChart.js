@@ -1,21 +1,23 @@
 import React, { Component } from 'react';
-import Highcharts from 'highcharts';
-
-//export default class App extends Component {
+import Highcharts from './highcharts.src';
+import { usdeur } from './usdeur';
 
 export default class BasicCharts extends Component {
 
-    componentDidMount() {
-        console.log("Basic Chart Drawing Start");
 
-        var chart = Highcharts.chart('chart-container', {
+    componentDidMount() {
+        console.log('test');
+        Highcharts.videoChart('chart-container', {
+            navigator: {
+                enabled: true
+            },
+
             series: [{
-                data: [1, 3, 2, 4]
-            }],
-            // ... more options - see http://api.highcharts.com/highcharts
+                name: 'USD to EUR',
+                data: usdeur
+            }]
         });
     }
-
 
     render() {
         return (
