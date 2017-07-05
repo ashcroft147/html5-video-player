@@ -16,6 +16,11 @@ export default class BasicCharts extends Component {
                 name: 'USD to EUR',
                 data: usdeur
             }]
+            ,
+
+            xAxis: {
+                crosshair: false
+            }
         });
     }
 

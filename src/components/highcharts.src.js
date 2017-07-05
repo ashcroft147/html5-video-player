@@ -21476,14 +21476,13 @@
 
     extend(defaultOptions, {
         navigator: {
-            //enabled: true,
             handles: {
                 backgroundColor: '#ebe7e8',
                 borderColor: '#b2b1b6'
             },
             height: 40,
             margin: 25,
-            maskFill: 'rgba(128,179,236,0.3)',
+            maskFill: 'red',
             maskInside: true,
             outlineColor: '#b2b1b6',
             outlineWidth: 1,
@@ -21547,7 +21546,6 @@
             }
         },
         scrollbar: {
-            //enabled: true
             height: isTouchDevice ? 20 : 14,
             barBackgroundColor: '#bfc8d1',
             barBorderRadius: 0,
@@ -21563,7 +21561,6 @@
             trackBackgroundColor: '#eeeeee',
             trackBorderColor: '#eeeeee',
             trackBorderWidth: 1,
-            // trackBorderRadius: 0
             liveRedraw: hasSVG && !isTouchDevice
         }
     });
@@ -21753,7 +21750,8 @@
                 centerBarX,
                 outlineTop = top + halfOutline,
                 verb,
-                unionExtremes;
+                unionExtremes,
+                maskWidth = 20;
 
             // Don't render the navigator until we have data (#486, #4202). Don't redraw while moving the handles (#4703).
             if (!defined(min) || isNaN(min) || (scroller.hasDragged && !defined(pxMin))) {
@@ -21800,9 +21798,7 @@
             scroller.range = scroller.zoomedMax - scroller.zoomedMin;
             zoomedMax = mathRound(scroller.zoomedMax);
             zoomedMin = mathRound(scroller.zoomedMin);
-            range = zoomedMax - zoomedMin;
-
-
+            range = 20; // width of scrollbar
 
             // on first render, create all elements
             if (!scroller.rendered) {
@@ -21884,49 +21880,53 @@
                 scroller.leftShade[verb](navigatorOptions.maskInside ? {
                     x: navigatorLeft + zoomedMin,
                     y: top,
-                    width: zoomedMax - zoomedMin,
+                    width: maskWidth,
                     height: height
                 } : {
                     x: navigatorLeft,
                     y: top,
-                    width: zoomedMin,
+                    width: maskWidth,
                     height: height
                 });
+
                 if (scroller.rightShade) {
                     scroller.rightShade[verb]({
-                        x: navigatorLeft + zoomedMax,
+                        x: navigatorLeft + maskWidth,
                         y: top,
-                        width: navigatorWidth - zoomedMax,
+                        width: maskWidth,
                         height: height
                     });
                 }
 
+/*
                 scroller.outline[verb]({ d: [
                     M,
                     scrollerLeft, outlineTop, // left
                     L,
-                    navigatorLeft + zoomedMin - halfOutline, outlineTop, // upper left of zoomed range
-                    navigatorLeft + zoomedMin - halfOutline, outlineTop + outlineHeight, // lower left of z.r.
+                    navigatorLeft  - halfOutline, outlineTop, // upper left of zoomed range
+                    navigatorLeft  - halfOutline, outlineTop + outlineHeight, // lower left of z.r.
                     L,
-                    navigatorLeft + zoomedMax - halfOutline, outlineTop + outlineHeight, // lower right of z.r.
+                    navigatorLeft + maskWidth - halfOutline, outlineTop + outlineHeight, // lower right of z.r.
                     L,
-                    navigatorLeft + zoomedMax - halfOutline, outlineTop, // upper right of z.r.
+                    navigatorLeft + maskWidth - halfOutline, outlineTop, // upper right of z.r.
                     scrollerLeft + scrollerWidth, outlineTop // right
                 ].concat(navigatorOptions.maskInside ? [
                     M,
-                    navigatorLeft + zoomedMin + halfOutline, outlineTop, // upper left of zoomed range
+                    navigatorLeft  + halfOutline, outlineTop, // upper left of zoomed range
                     L,
-                    navigatorLeft + zoomedMax - halfOutline, outlineTop // upper right of z.r.
+                    navigatorLeft + maskWidth - halfOutline, outlineTop // upper right of z.r.
                 ] : []) });
+
+                */
                 // draw handles
-                scroller.drawHandle(zoomedMin + halfOutline, 0);
-                scroller.drawHandle(zoomedMax + halfOutline, 1);
+                // scroller.drawHandle(zoomedMin + halfOutline, 0);
+                // scroller.drawHandle(zoomedMax + halfOutline, 1);
             }
 
             // draw the scrollbar
             if (scrollbarEnabled && scrollbarGroup) {
 
-                // draw the buttons
+                // draw the left, right side buttons at the end of the scroll bar
                 scroller.drawScrollbarButton(0);
                 scroller.drawScrollbarButton(1);
 
@@ -22043,7 +22043,18 @@
                 baseSeries = scroller.baseSeries;
 
             /**
-             * Event handler for the mouse down event.
+             * Event handler for the mouse down event when clicking inside of navigator.
+             * 
+             * zoomedMin                                        zoomedMax
+             *     -------------------------------------------------
+             *    |x <-- click        Masked Range                  |
+             *     -------------------------------------------------
+             *  [ |                   scrollbar                       ]
+             *  navigatorLeft
+             * 
+             *  grabLeftHandler = abs(x - navigatorLeft - zoomedMin) < 7 --> true
+             *  grabRightHandler = abs(x - navigatorLeft - zoomedMax) < 7 --> true
+             *  grabZoomedRange --> true
              */
             scroller.mouseDownHandler = function (e) {
                 e = chart.pointer.normalize(e);
@@ -22119,14 +22130,20 @@
                         }
                         if (left < 0) {
                             left = 0;
-                        } else if (left + range >= navigatorWidth) {
+                        } else if (left + range >= navigatorWidth) { // range = masking size, navigatorWidth = full size of navigator
                             left = navigatorWidth - range;
                             fixedMax = scroller.getUnionExtremes().dataMax; // #2293, #3543
                         }
+                        
+                        // left = clicked position
+                        // zoomedMin = left position of masking
+                        // left != zoomedMin --> Moved !!
                         if (left !== zoomedMin) { // it has actually moved
                             scroller.fixedWidth = range; // #1370
 
-                            ext = xAxis.toFixedRange(left, left + range, null, fixedMax);
+                            ext = xAxis.toFixedRange(left, left + range, null, fixedMax); 
+                            
+                            // ext.min, max 가 과거랑 동일하면 chart main이 re
                             baseXAxis.setExtremes(
                                 ext.min,
                                 ext.max,
@@ -22134,7 +22151,9 @@
                                 false,
                                 { trigger: 'navigator' }
                             );
+                            
                         }
+                        
                     }
 
                 }
@@ -22166,7 +22185,7 @@
                     } else if (chartX > scrollerLeft + scrollerWidth - scrollbarHeight) {
                         chartX = scrollerLeft + scrollerWidth - scrollbarHeight;
                     }
-
+                    
                     // drag left handle
                     if (scroller.grabbedLeft) {
                         hasDragged = true;
@@ -22176,6 +22195,7 @@
                     } else if (scroller.grabbedRight) {
                         hasDragged = true;
                         scroller.render(0, 0, scroller.otherHandlePos, chartX - navigatorLeft);
+                    
 
                     // drag scrollbar or open area in navigator
                     } else if (scroller.grabbedCenter) {
@@ -22190,12 +22210,14 @@
                         scroller.render(0, 0, chartX - dragOffset, chartX - dragOffset + range);
 
                     }
+
                     if (hasDragged && scroller.scrollbarOptions.liveRedraw) {
                         setTimeout(function () {
                             scroller.mouseUpHandler(e);
                         }, 0);
                     }
-                    scroller.hasDragged = hasDragged;
+                    //if( scroller.hasDragged ) true -->
+                    //scroller.hasDragged = hasDragged;
                 }
             };
 
