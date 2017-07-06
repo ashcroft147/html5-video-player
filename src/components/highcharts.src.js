@@ -8170,6 +8170,7 @@
                 axis.eventArgs = eventArguments;
 
                 if (redraw) {
+                    console.log("setExtremes: " + newMin + "," + newMax);
                     chart.redraw(animation);
                 }
             });
@@ -21790,15 +21791,31 @@
                 return;
             }
 
-
             // handles are allowed to cross, but never exceed the plot area
-            scroller.zoomedMax = mathMin(mathMax(pxMin, pxMax, 0), navigatorWidth);
+            /*
+             * zoomedMax
+             * - init value: 20px
+             * - after click event: chartX which is clicked position 
+             * - checkinit
+             */
+            console.log('pxMin: ' + pxMin + ',pxMax: ' + pxMax); 
+
+            if(this.range) {
+                scroller.zoomedMax = mathMin(mathMax(pxMin, pxMax, 0), navigatorWidth);
+            }
+            else {
+                scroller.zoomedMax = maskWidth;
+            }
             scroller.zoomedMin =
                 mathMax(scroller.fixedWidth ? scroller.zoomedMax - scroller.fixedWidth : mathMin(pxMin, pxMax), 0);
-            scroller.range = scroller.zoomedMax - scroller.zoomedMin;
+            
+            scroller.range = maskWidth;
+            // scroller.range = scroller.zoomedMax - scroller.zoomedMin;
             zoomedMax = mathRound(scroller.zoomedMax);
             zoomedMin = mathRound(scroller.zoomedMin);
-            range = 20; // width of scrollbar
+
+            console.log('zoomedMax: ' + zoomedMax + ',zoomedMin: ' + zoomedMin);            
+            range = maskWidth; // width of scrollbar
 
             // on first render, create all elements
             if (!scroller.rendered) {
@@ -21825,7 +21842,6 @@
                                 fill: navigatorOptions.maskFill
                             }).add(navigatorGroup);
                     }
-
 
                     scroller.outline = renderer.path()
                         .attr({
@@ -22081,7 +22097,9 @@
                 if (chartY > top && chartY < top + height + scrollbarHeight) { // we're vertically inside the navigator
                     isOnNavigator = !scroller.scrollbarEnabled || chartY < top + height;
 
+                    // 양 사이드를 grab 한 경우에는 scrollbar가 움직이지 않도록 한다. 
                     // grab the left handle
+                    /*
                     if (isOnNavigator && math.abs(chartX - zoomedMin - navigatorLeft) < handleSensitivity) {
                         scroller.grabbedLeft = true;
                         scroller.otherHandlePos = zoomedMax;
@@ -22096,13 +22114,12 @@
                         chart.fixedRange = null;
 
                     // grab the zoomed range
-                    } else if (chartX > navigatorLeft + zoomedMin - scrollbarPad && chartX < navigatorLeft + zoomedMax + scrollbarPad) {
+                    } */
+                    if (chartX > navigatorLeft + zoomedMin - scrollbarPad && chartX < navigatorLeft + zoomedMax + scrollbarPad) {
                         scroller.grabbedCenter = chartX;
                         scroller.fixedWidth = range;
 
                         dragOffset = chartX - zoomedMin;
-
-
                     // shift the range by clicking on shaded areas, scrollbar track or scrollbar buttons
                     } else if (chartX > scrollerLeft && chartX < scrollerLeft + scrollerWidth) {
 
@@ -22187,6 +22204,7 @@
                     }
                     
                     // drag left handle
+                    /*
                     if (scroller.grabbedLeft) {
                         hasDragged = true;
                         scroller.render(0, 0, chartX - navigatorLeft, scroller.otherHandlePos);
@@ -22195,12 +22213,11 @@
                     } else if (scroller.grabbedRight) {
                         hasDragged = true;
                         scroller.render(0, 0, scroller.otherHandlePos, chartX - navigatorLeft);
-                    
-
+                    }  */
                     // drag scrollbar or open area in navigator
-                    } else if (scroller.grabbedCenter) {
-
+                    if (scroller.grabbedCenter) {
                         hasDragged = true;
+                        
                         if (chartX < dragOffset) { // outside left
                             chartX = dragOffset;
                         } else if (chartX > navigatorWidth + dragOffset - range) { // outside right
@@ -22208,7 +22225,6 @@
                         }
 
                         scroller.render(0, 0, chartX - dragOffset, chartX - dragOffset + range);
-
                     }
 
                     if (hasDragged && scroller.scrollbarOptions.liveRedraw) {
@@ -22216,8 +22232,9 @@
                             scroller.mouseUpHandler(e);
                         }, 0);
                     }
-                    //if( scroller.hasDragged ) true -->
-                    //scroller.hasDragged = hasDragged;
+//                    if( scroller.hasDragged ) true -->
+                    console.log("22234: " + hasDragged);
+                    scroller.hasDragged = hasDragged;
                 }
             };
 
@@ -22231,11 +22248,13 @@
 
                 if (scroller.hasDragged) {
                     // When dragging one handle, make sure the other one doesn't change
+                    /*
                     if (scroller.zoomedMin === scroller.otherHandlePos) {
                         fixedMin = scroller.fixedExtreme;
                     } else if (scroller.zoomedMax === scroller.otherHandlePos) {
                         fixedMax = scroller.fixedExtreme;
                     }
+                    */
 
                     // Snap to right edge (#4076)
                     if (scroller.zoomedMax === scroller.navigatorWidth) {
@@ -22264,8 +22283,6 @@
                 }
 
             };
-
-
 
             var xAxisIndex = chart.xAxis.length,
                 yAxisIndex = chart.yAxis.length;
