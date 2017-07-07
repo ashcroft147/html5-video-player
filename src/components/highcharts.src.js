@@ -8164,7 +8164,6 @@
 
             // Fire the event
             fireEvent(axis, 'setExtremes', eventArguments, function () { // the default event handler
-
                 axis.userMin = newMin;
                 axis.userMax = newMax;
                 axis.eventArgs = eventArguments;
@@ -21755,6 +21754,9 @@
                 maskWidth = 20;
 
             // Don't render the navigator until we have data (#486, #4202). Don't redraw while moving the handles (#4703).
+            // Navigation 중에는 rendering을 하지 않는다. => scroller.hasDragged가 undefined 인 경우
+            // Navigation 중이라도 min, pxMin 값은 존재 한다. 
+            // --> Navigation 중 !defined(min) = false, isNaN(min) = false, !defined(pxMin) = false
             if (!defined(min) || isNaN(min) || (scroller.hasDragged && !defined(pxMin))) {
                 return;
             }
@@ -21787,9 +21789,10 @@
             }
 
             // Are we below the minRange? (#2618)
+            /*
             if (xAxis.translate(pxMax, true) - xAxis.translate(pxMin, true) < chart.xAxis[0].minRange) {
                 return;
-            }
+            }*/
 
             // handles are allowed to cross, but never exceed the plot area
             /*
@@ -21798,14 +21801,19 @@
              * - after click event: chartX which is clicked position 
              * - checkinit
              */
-            console.log('pxMin: ' + pxMin + ',pxMax: ' + pxMax); 
 
-            if(this.range) {
+            console.log('scroller.rendered: ' + scroller.rendered + ', pxMin: ' + pxMin + ', pxMax: ' + pxMax); 
+
+            // TBD:
+            // range 의 값이 할당 되었는지를 기준으로 zoomedMax 의 변수 설정을 달리 한 부분이 바뀌어야 한다. 
+            // init 의 실행인지 event에 의한 실행인지 구분할 수 있는 구분자 필요
+            if (scroller.rendered) {
                 scroller.zoomedMax = mathMin(mathMax(pxMin, pxMax, 0), navigatorWidth);
             }
             else {
                 scroller.zoomedMax = maskWidth;
             }
+            
             scroller.zoomedMin =
                 mathMax(scroller.fixedWidth ? scroller.zoomedMax - scroller.fixedWidth : mathMin(pxMin, pxMax), 0);
             
@@ -22160,7 +22168,6 @@
 
                             ext = xAxis.toFixedRange(left, left + range, null, fixedMax); 
                             
-                            // ext.min, max 가 과거랑 동일하면 chart main이 re
                             baseXAxis.setExtremes(
                                 ext.min,
                                 ext.max,
@@ -22223,7 +22230,7 @@
                         } else if (chartX > navigatorWidth + dragOffset - range) { // outside right
                             chartX = navigatorWidth + dragOffset - range;
                         }
-
+                        console.log('scroller.rendering!!'+ chartX + ',' + dragOffset + ',' + range);
                         scroller.render(0, 0, chartX - dragOffset, chartX - dragOffset + range);
                     }
 
@@ -22232,8 +22239,7 @@
                             scroller.mouseUpHandler(e);
                         }, 0);
                     }
-//                    if( scroller.hasDragged ) true -->
-                    console.log("22234: " + hasDragged);
+
                     scroller.hasDragged = hasDragged;
                 }
             };
@@ -22266,7 +22272,7 @@
                         chart.xAxis[0].setExtremes(
                             ext.min,
                             ext.max,
-                            true,
+                            false,
                             false,
                             {
                                 trigger: 'navigator',
