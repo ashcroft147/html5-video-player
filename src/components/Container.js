@@ -8,7 +8,10 @@ class VideoContainer extends Component {
         return (
             <div className="player-container">
                 <VideoPlayer { ...VIDEO_JS_OPTIONS }/>
-                <BasicChart />
+                {/*
+                    <BasicChart />
+                */}
+                
             </div>
         );
     }
