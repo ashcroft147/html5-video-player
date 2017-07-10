@@ -28,13 +28,6 @@ export default class VideoPlayer extends Component {
         */
     }
     
-    // destroy player on unmount
-    componentWillUnmount() {
-        if (this.player) {
-            this.player.dispose();
-        }
-    }
-    
     myFunction() { 
         console.log('1');
     } 

@@ -19,7 +19,7 @@ export default class BasicCharts extends Component {
             ,
 
             xAxis: {
-                crosshair: false
+                crosshair: true
             }
         });
     }

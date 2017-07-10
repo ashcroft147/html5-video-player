@@ -1,6 +1,6 @@
 export const VIDEO_JS_OPTIONS = {  
     autoplay: true,
     controls: true,   
-    height: 200,
-    width: 400
+    height: 400,
+    width: 600
 };
