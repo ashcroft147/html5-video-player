@@ -1,21 +1,39 @@
 import React, { Component } from 'react';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
+import Chart from './Chart';
 
 export default class VideoPlayer extends Component {
     
     constructor(props) {
         super(props);
 
-        this.state = {player: ''};
+        this.state = {           
+            startTime: "",
+            endTime: "",
+            duration: ""
+        };
+
+        this.myFunction = this.myFunction.bind(this);
     }
 
     componentDidMount() {
-             // instantiate video.js
-             this.player = videojs(this.videoNode, this.props, function onPlayerReady() {      
-             this.setState({player: this.player});                       
+        // instantiate video.js
+        this.player = videojs(this.videoNode, this.props, function onPlayerReady() {      
+            // player 객체가 정상적으로 생성된 경우 startTime, endTime, duration을 구해서 prop에 셋팅해 준다.
+            console.log('Video Player is Ready', this);
         });
 
+        if(this.player) {
+            // timeupdate is executed when video running time is changed
+/*            this.player.on('timeupdate', function() {
+                console.log("time is setup");
+            });*/
+            this.player.on('loadedmetadata', function() {
+                console.log("metadata is setup");
+            });
+        }
+        
         /*
         if(this.player) {
             this.player.on('ended', () => {
@@ -29,7 +47,7 @@ export default class VideoPlayer extends Component {
     }
     
     myFunction() { 
-        console.log('1');
+        console.log('myFunction executed');
     } 
 
     // 1st src: https://www.w3schools.com/html/mov_bbb.mp4
@@ -38,13 +56,13 @@ export default class VideoPlayer extends Component {
         return (
             <div>
                 <p> Video</p>
-                <button onClick={this.myFunction.bind(this)} type="button">Get played range</button>
+                <button onClick={this.myFunction} type="button">Get played range</button>
                 <div data-vjs-player>
                     <video ref={node => this.videoNode = node} className="video-js" controls >
                         <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4" />
                     </video>
-
                 </div>
+                <Chart startTime={this.state.startTime} endTime={this.state.endTime} duration={this.state.duration}/>
             </div>
         );
     }

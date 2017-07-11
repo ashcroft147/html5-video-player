@@ -2,11 +2,9 @@ import React, { Component } from 'react';
 import Highcharts from './highcharts.src';
 import { usdeur } from './usdeur';
 
-export default class BasicCharts extends Component {
-
+export default class Chart extends Component {
 
     componentDidMount() {
-        console.log('test');
         Highcharts.videoChart('chart-container', {
             navigator: {
                 enabled: true
@@ -27,7 +25,7 @@ export default class BasicCharts extends Component {
     render() {
         return (
             <div id='chart-container'>
-                <h3>BasicCharts Component</h3>
+                <h3>Chart Component</h3>
             </div>
         )
     }
