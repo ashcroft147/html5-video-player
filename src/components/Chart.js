@@ -1,8 +1,15 @@
 import React, { Component } from 'react';
-import Highcharts from './highcharts.src';
+import Highcharts from 'highcharts/highcharts.src';
 import { usdeur } from './usdeur';
 
 export default class Chart extends Component {
+
+    constructor(props) {
+        super(props)
+
+        console.log("< Chart >")
+        console.log(JSON.stringify(this.props));
+    }
 
     componentDidMount() {
         Highcharts.videoChart('chart-container', {
